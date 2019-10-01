@@ -77,38 +77,43 @@ class ReflexAgent(Agent):
 
         # Not getting killed > eating food > moving closer to food > fearing ghosts (see: God)
 
-        a = 150 # Eating food
-        b = 10
+        a = 50 # Eating food
+        b = 15
         c = 2
+        d = 1/2
 
-        prevFood = currentGameState.getFood()
-        foodScore = 0
+        newCapsules = currentGameState.getCapsules()
+        foodScore = 0.0
 
         # Food eating priority
         if currentGameState.getNumFood() > successorGameState.getNumFood():
             foodScore += a
 
         # Food distance priority
-        distance = 0
-        for food in newFood:
+        distance = 0.0
+        for food in newCapsules:
             md = abs(food[0] - newPos[0]) + abs(food[1] - newPos[1])
             distance += (md ** -1) * b
 
         # Ghost (God) fear / courage
-        fear = 0
+        fear = 0.0
         for ghost in newGhostStates:
             ghostPos = ghost.getPosition()
             if ghost.scaredTimer > 0:
                 md = abs(ghostPos[0] - newPos[0]) + abs(ghostPos[1] - newPos[1])
-                fear += 2**(md**-1)
+                fear += (md**-1) * b
             else:
                 md = abs(ghostPos[0] - newPos[0]) + abs(ghostPos[1] - newPos[1])
                 if md == 0:
                     fear = 0
                     break
-                fear += log(md, c)
+                fear += log(md, c)*d
 
-        return fear + distance + foodScore
+        score = fear + distance + foodScore
+
+        print action, score
+
+        return score
 
         return successorGameState.getScore()
 
