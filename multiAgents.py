@@ -66,6 +66,8 @@ class ReflexAgent(Agent):
         Print out these variables to see what you're getting, then combine them
         to create a masterful evaluation function.
         """
+        from math import log
+
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
@@ -74,8 +76,10 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         # Not getting killed > eating food > moving closer to food > fearing ghosts (see: God)
-        a = 100 # Eating food
-        b = 2
+
+        a = 150 # Eating food
+        b = 10
+        c = 2
 
         prevFood = currentGameState.getFood()
         foodScore = 0
@@ -90,9 +94,22 @@ class ReflexAgent(Agent):
             md = abs(food[0] - newPos[0]) + abs(food[1] - newPos[1])
             distance += (md ** -1) * b
 
+        # Ghost (God) fear / courage
+        fear = 0
+        for ghost in newGhostStates:
+            ghostPos = ghost.getPosition()
+            if ghost.scaredTimer > 0:
+                md = abs(ghostPos[0] - newPos[0]) + abs(ghostPos[1] - newPos[1])
+                fear += 2**(md**-1)
+            else:
+                md = abs(ghostPos[0] - newPos[0]) + abs(ghostPos[1] - newPos[1])
+                if md == 0:
+                    fear = 0
+                    break
+                fear += log(md, c)
 
+        return fear + distance + foodScore
 
-        "*** YOUR CODE HERE ***"
         return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState):
