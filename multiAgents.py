@@ -71,29 +71,43 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
+        newFood = successorGameState.getFood().data
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         # Not getting killed > eating food > moving closer to food > fearing ghosts (see: God)
 
-        a = 50 # Eating food
-        b = 15
+        n = successorGameState.getNumFood()
+
+        # If you can win that's the best possible move
+        if n == 0:
+            return 99999
+
+        a = 100 # Eating food
+        b = 100
+        b1 = 50
         c = 2
-        d = 1/2
+        d = .5*(successorGameState.getNumFood() + 1 ** -1)
 
-        newCapsules = currentGameState.getCapsules()
-        foodScore = 0.0
+        foods = []
 
-        # Food eating priority
-        if currentGameState.getNumFood() > successorGameState.getNumFood():
-            foodScore += a
+        for i in range(len(newFood)):
+            for j in range(len(newFood[i])):
+                if newFood[i][j]:
+                    foods.append((i, j))
 
         # Food distance priority
         distance = 0.0
-        for food in newCapsules:
+        for food in foods:
             md = abs(food[0] - newPos[0]) + abs(food[1] - newPos[1])
-            distance += (md ** -1) * b
+            print(md)
+            if md==0:
+                distance += a
+            else:
+                distance += ((md*b1) ** -1) * b
+
+        # Average distance
+        distance = (distance / n)
 
         # Ghost (God) fear / courage
         fear = 0.0
@@ -109,7 +123,7 @@ class ReflexAgent(Agent):
                     break
                 fear += log(md, c)*d
 
-        score = fear + distance + foodScore
+        score = fear + distance
 
         print action, score
 
