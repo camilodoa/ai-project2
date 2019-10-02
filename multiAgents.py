@@ -66,8 +66,6 @@ class ReflexAgent(Agent):
         Print out these variables to see what you're getting, then combine them
         to create a masterful evaluation function.
         """
-        from math import log
-
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
@@ -75,61 +73,77 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        # Not getting killed > eating food > moving closer to food > fearing ghosts (see: God)
+        # Our plan:
+        # Winning > Not getting killed > eating food > moving closer to food > fearing ghosts (see: God)
 
         n = successorGameState.getNumFood()
-
         # If you can win that's the best possible move
         if n == 0:
             return 99999
 
-        a = 100 # Eating food
-        b = 100
-        b1 = 50
-        c = 2
-        d = .5*(successorGameState.getNumFood() + 1 ** -1)
-
+        # Record food coordinates
         foods = []
-
         for i in range(len(newFood)):
             for j in range(len(newFood[i])):
                 if newFood[i][j]:
                     foods.append((i, j))
 
-        # Food distance priority
-        distance = 0.0
-        for food in foods:
-            md = abs(food[0] - newPos[0]) + abs(food[1] - newPos[1])
-            print(md)
-            if md==0:
-                distance += a
-            else:
-                distance += ((md*b1) ** -1) * b
+        # Fear
+        fear = 0
+        fear_factor = 11
+        if newGhostStates: # If there are ghosts
+            closest_ghost = 99999
+            for ghost in newGhostStates:
+                if ghost.scaredTimer == 0:
+                    md = manhattanDistance(ghost.getPosition(), newPos)
+                    # Fearing the closest ghost most
+                    if md < closest_ghost:
+                        closest_ghost = md
 
-        # Average distance
-        distance = (distance / n)
+            # If the spot gets us killed, it's an auto negative inf
+            if closest_ghost == 0:
+                return -99999
 
-        # Ghost (God) fear / courage
-        fear = 0.0
-        for ghost in newGhostStates:
-            ghostPos = ghost.getPosition()
-            if ghost.scaredTimer > 0:
-                md = abs(ghostPos[0] - newPos[0]) + abs(ghostPos[1] - newPos[1])
-                fear += (md**-1) * b
-            else:
-                md = abs(ghostPos[0] - newPos[0]) + abs(ghostPos[1] - newPos[1])
+            # Hunger is a negative exponential function that is multiplied by fear_factor
+            fear = fear_factor/closest_ghost
+
+
+        hunger_factor = 15
+        # Food hunger
+        if currentGameState.getNumFood() > successorGameState.getNumFood():
+            return hunger_factor
+
+        # Hunger factor
+        hunger = 0
+        if foods:
+            closest_food = 99999
+            for food in foods:
+                md = manhattanDistance(food, newPos)
                 if md == 0:
-                    fear = 0
-                    break
-                fear += log(md, c)*d
+                    return hunger_factor
+                # Loving the closest food most
+                if md < closest_food:
+                    closest_food = md
 
-        score = fear + distance
+            for ghost in newGhostStates:
+                if ghost.scaredTimer > 0:
+                    md = manhattanDistance(ghost.getPosition(), newPos)
+                    if md == 0:
+                        return hunger_factor
+                    # Loving the closest food most
+                    if md < closest_food:
+                        closest_food = md
 
-        print action, score
+            # Hunger is a negative exponential function that is multiplied by hunger_factor
+            hunger = hunger_factor/closest_food
 
-        return score
+        score =  hunger - fear
 
-        return successorGameState.getScore()
+        if score:
+            return score
+        else:
+            return successorGameState.getScore()
+
 
 def scoreEvaluationFunction(currentGameState):
     """
