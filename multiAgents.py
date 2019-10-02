@@ -90,7 +90,7 @@ class ReflexAgent(Agent):
 
         # Fear
         fear = 0
-        fear_factor = 11
+        fear_factor = 12
         if newGhostStates: # If there are ghosts
             closest_ghost = 99999
             for ghost in newGhostStates:
@@ -108,7 +108,7 @@ class ReflexAgent(Agent):
             fear = fear_factor/closest_ghost
 
 
-        hunger_factor = 15
+        hunger_factor = 18
         # Food hunger
         if currentGameState.getNumFood() > successorGameState.getNumFood():
             return hunger_factor
@@ -140,9 +140,13 @@ class ReflexAgent(Agent):
         score =  hunger - fear
 
         if score:
-            return score
-        else:
-            return successorGameState.getScore()
+            # Moving is often better than sitting still
+            if action == "Stop":
+                return score - 5
+            else:
+                return score
+
+        return successorGameState.getScore()
 
 
 def scoreEvaluationFunction(currentGameState):
