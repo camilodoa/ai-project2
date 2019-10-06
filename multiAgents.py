@@ -270,7 +270,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
     """
-
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
@@ -282,9 +281,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         for action in gameState.getLegalActions(0):
           result = self.minimax(gameState.generateSuccessor(0, action), 1, 1, alpha, beta)
+
           if result >= max_score:
             max_score = result
             max_action = action
+
+          # Pruning part
+          if max_score > beta:
+              return max_action
+
+          alpha = max(alpha, max_score)
 
         return max_action
 
@@ -307,9 +313,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             actions = s.getLegalActions(0)
 
             for action in actions:
-                result = self.minimax(s.generateSuccessor(0, action), d, turn + 1)
+                result = self.minimax(s.generateSuccessor(0, action), d, turn + 1, alpha, beta)
+
                 if result > max_action:
                     max_action = result
+
+                # Pruning part
+                if max_action > beta:
+                    return max_action
+
+                alpha = max(alpha, max_action)
 
             return max_action
 
@@ -320,12 +333,18 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
             for action in actions:
                 if turn == s.getNumAgents()-1:
-                    result = self.minimax(s.generateSuccessor(turn, action), d + 1, 0)
+                    result = self.minimax(s.generateSuccessor(turn, action), d + 1, 0, alpha, beta)
                 else:
-                    result = self.minimax(s.generateSuccessor(turn, action), d, turn + 1)
+                    result = self.minimax(s.generateSuccessor(turn, action), d, turn + 1, alpha, beta)
 
                 if result < min_action:
                     min_action = result
+
+                # Pruning part
+                if min_action < alpha:
+                    return min_action
+
+                beta = min(beta, min_action)
 
             return min_action
 
