@@ -205,10 +205,21 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
+        
+        max_score = 0
+        max_action = None
+        for action in gameState.getLegalActions(0):
+          result = self.minimax(gameState.generateSuccessor(0, action), 0, 1)
+          if result >= max_score:
+            max_score = result
+            max_action = action
+
+        return max_action
+
 
         util.raiseNotDefined()
 
-    def minimax(s, d, turn):
+    def minimax(self, s, d, turn):
         '''
         s: gameState
         d: depth
@@ -217,7 +228,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if s.isWin() or s.isLose():
             return self.evaluationFunction(s)
 
-        if cutoffTest(d):
+        if self.cutoffTest(d):
             return self.evaluationFunction(s)
 
         if turn == 0:
@@ -225,23 +236,26 @@ class MinimaxAgent(MultiAgentSearchAgent):
             actions = s.getLegalActions(0)
 
             for action in actions:
-                result = minimax(s.generateSuccessor(0, action), d + 1, turn + 1)
+                result = self.minimax(s.generateSuccessor(0, action), d + 1, turn + 1)
                 if result > max_action:
                     max_action = result
 
             return max_action
 
 
-            return max()
+        if turn == 1:
+            total_min = 0
+            for i in range(1, s.getNumAgents()):
+                min_action = 99999
+                actions = s.getLegalActions(i)
 
+                for action in actions:
+                    result = self.minimax(s.generateSuccessor(i, action), d + 1, turn - 1)
+                    if result < min_action:
+                        min_action = result
 
-        if turn = 1:
-          for i in range(1, gameState.getNumAgents()):
-            max_action = 0
-            actions = s.getLegalActions(i)
-
-            for 
-            result = minimax(s.generateSuccessor())
+                total_min += min_action
+            return total_min
 
 
 
@@ -249,8 +263,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
 
 
-    def cutoffTest(d):
-        if d > = self.depth:
+    def cutoffTest(self, d):
+        if d >= self.depth:
             return True
         return False
 
