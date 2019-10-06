@@ -229,7 +229,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return self.evaluationFunction(s)
 
         if self.cutoffTest(d):
-            return self.evaluationFunction(s)
+            return self.evaluationFunction(s) # FIX THIS 
 
         if turn == 0:
             max_action = 0
@@ -243,24 +243,20 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return max_action
 
 
-        if turn == 1:
-            total_min = 0
-            for i in range(1, s.getNumAgents()):
-                min_action = 99999
-                actions = s.getLegalActions(i)
+        if turn >= 1:
+            min_action = 99999
+            actions = s.getLegalActions(turn)
 
-                for action in actions:
-                    result = self.minimax(s.generateSuccessor(i, action), d + 1, turn - 1)
-                    if result < min_action:
-                        min_action = result
+            for action in actions:
+                if turn == s.getNumAgents()-1:
+                    result = self.minimax(s.generateSuccessor(turn, action), d + 1, 0)
+                else:
+                    result = self.minimax(s.generateSuccessor(turn, action), d + 1, turn + 1)
 
-                total_min += min_action
-            return total_min
+                if result < min_action:
+                    min_action = result
 
-
-
-        # s.getLegalActions()
-
+            return min_action
 
 
     def cutoffTest(self, d):
