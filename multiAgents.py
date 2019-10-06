@@ -275,8 +275,65 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
+        max_score = -99999
+        max_action = None
+        alpha = -99999
+        beta = 99999
+
+        for action in gameState.getLegalActions(0):
+          result = self.minimax(gameState.generateSuccessor(0, action), 1, 1, alpha, beta)
+          if result >= max_score:
+            max_score = result
+            max_action = action
+
+        return max_action
+
         util.raiseNotDefined()
+
+    def minimax(self, s, d, turn, alpha, beta):
+        '''
+        s: gameState
+        d: depth
+        turn: 0 if pacman, 1 if ghost
+        '''
+        if s.isWin() or s.isLose():
+            return self.evaluationFunction(s)
+
+        if self.cutoffTest(d):
+            return self.evaluationFunction(s) # FIX THIS
+
+        if turn == 0:
+            max_action = -99999
+            actions = s.getLegalActions(0)
+
+            for action in actions:
+                result = self.minimax(s.generateSuccessor(0, action), d, turn + 1)
+                if result > max_action:
+                    max_action = result
+
+            return max_action
+
+
+        if turn >= 1:
+            min_action = 99999
+            actions = s.getLegalActions(turn)
+
+            for action in actions:
+                if turn == s.getNumAgents()-1:
+                    result = self.minimax(s.generateSuccessor(turn, action), d + 1, 0)
+                else:
+                    result = self.minimax(s.generateSuccessor(turn, action), d, turn + 1)
+
+                if result < min_action:
+                    min_action = result
+
+            return min_action
+
+
+    def cutoffTest(self, d):
+        if d > self.depth:
+            return True
+        return False
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
