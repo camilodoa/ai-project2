@@ -206,7 +206,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
 
-        max_score = 0
+        max_score = -99999
         max_action = None
         for action in gameState.getLegalActions(0):
           result = self.minimax(gameState.generateSuccessor(0, action), 1, 1)
@@ -229,14 +229,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return self.evaluationFunction(s)
 
         if self.cutoffTest(d):
-            return self.evaluationFunction(s) # FIX THIS 
+            return self.evaluationFunction(s) # FIX THIS
 
         if turn == 0:
-            max_action = 0
+            max_action = -99999
             actions = s.getLegalActions(0)
 
             for action in actions:
-                result = self.minimax(s.generateSuccessor(0, action), d + 1, turn + 1)
+                result = self.minimax(s.generateSuccessor(0, action), d, turn + 1)
                 if result > max_action:
                     max_action = result
 
@@ -251,7 +251,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 if turn == s.getNumAgents()-1:
                     result = self.minimax(s.generateSuccessor(turn, action), d + 1, 0)
                 else:
-                    result = self.minimax(s.generateSuccessor(turn, action), d + 1, turn + 1)
+                    result = self.minimax(s.generateSuccessor(turn, action), d, turn + 1)
 
                 if result < min_action:
                     min_action = result
@@ -260,7 +260,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
 
     def cutoffTest(self, d):
-        if d >= self.depth:
+        if d > self.depth:
             return True
         return False
 
