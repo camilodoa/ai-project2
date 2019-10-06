@@ -205,11 +205,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-        
+
         max_score = 0
         max_action = None
         for action in gameState.getLegalActions(0):
-          result = self.minimax(gameState.generateSuccessor(0, action), 0, 1)
+          result = self.minimax(gameState.generateSuccessor(0, action), 1, 1)
           if result >= max_score:
             max_score = result
             max_action = action
