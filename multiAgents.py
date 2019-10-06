@@ -205,8 +205,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-        "*** YOUR CODE HERE ***"
+
         util.raiseNotDefined()
+
+    def minimax(s, d, turn):
+        '''
+        s: gameState
+        d: depth
+        turn: 0 if pacman, 1 if ghost
+        '''
+        if s.isWin() or s.isLose():
+            return self.evaluationFunction(s)
+
+        if cutoffTest(d):
+            return self.evaluationFunction(s)
+
+        if turn == 0:
+            max_action = 0
+            actions = s.getLegalActions(0)
+
+            for action in action:
+                result = minimax(s.generateSuccessor(0, action), d + 1, turn + 1)
+                
+
+
+            return max()
+
+
+
+        # s.getLegalActions()
+
+
+
+    def cutoffTest(d):
+        if d > = self.depth:
+            return True
+        return False
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
