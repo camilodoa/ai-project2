@@ -232,6 +232,15 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return max()
 
 
+        if turn = 1:
+          for i in range(1, gameState.getNumAgents()):
+            max_action = 0
+            actions = s.getLegalActions(i)
+
+            for 
+            result = minimax(s.generateSuccessor())
+
+
 
         # s.getLegalActions()
 
