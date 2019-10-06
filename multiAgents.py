@@ -91,21 +91,25 @@ class ReflexAgent(Agent):
         # Fear
         fear = 0
         fear_factor = 12
+        ghosts = []
+        gamma = .5
+
         if newGhostStates: # If there are ghosts
-            closest_ghost = 99999
             for ghost in newGhostStates:
                 if ghost.scaredTimer == 0:
                     md = manhattanDistance(ghost.getPosition(), newPos)
-                    # Fearing the closest ghost most
-                    if md < closest_ghost:
-                        closest_ghost = md
+                    ghosts.append(md)
 
-            # If the spot gets us killed, it's an auto negative inf
-            if closest_ghost == 0:
-                return -99999
+                    # If the spot gets us killed, it's an auto negative inf
+                    if md == 0:
+                        return -99999
 
+        # Sort ghosts based on distance
+        ghost = sorted(ghosts)
+
+        for i in range(len(ghosts)):
             # Hunger is a negative exponential function that is multiplied by fear_factor
-            fear = fear_factor/closest_ghost
+            fear += (fear_factor/ghosts[i]) * (gamma**i)
 
 
         hunger_factor = 18
