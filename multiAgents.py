@@ -224,9 +224,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
             max_action = 0
             actions = s.getLegalActions(0)
 
-            for action in action:
+            for action in actions:
                 result = minimax(s.generateSuccessor(0, action), d + 1, turn + 1)
-                
+                if result > max_action:
+                    max_action = result
+
+            return max_action
 
 
             return max()
