@@ -106,6 +106,7 @@ class ReflexAgent(Agent):
 
         # Sort ghosts based on distance
         ghosts = sorted(ghosts)
+        ghosts = [ghost for ghost < 5 in ghosts]
 
         for i in range(len(ghosts)):
             # Hunger is a negative exponential function that is multiplied by fear_factor
