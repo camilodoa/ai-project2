@@ -106,7 +106,6 @@ class ReflexAgent(Agent):
 
         # Sort ghosts based on distance
         ghosts = sorted(ghosts)
-        ghosts = [ghost for ghost < 5 in ghosts]
 
         for i in range(len(ghosts)):
             # Hunger is a negative exponential function that is multiplied by fear_factor
@@ -435,18 +434,28 @@ def betterEvaluationFunction(currentGameState):
     ghostStates = currentGameState.getGhostStates()
     n = currentGameState.getNumFood()
     pos = currentGameState.getPacmanPosition()
-    food = currentGameState.getFood().data
+    foodStates = currentGameState.getFood().data
 
     # If you can win that's the best possible move
-    if n == 0:
+    if currentGameState.isWin():
         return 99999
+
+    if currentGameState.isLose():
+        return -99999
 
     # Record food coordinates
     foods = []
-    for i in range(len(food)):
-        for j in range(len(food[i])):
-            if food[i][j]:
+    for i in range(len(foodStates)):
+        for j in range(len(foodStates[i])):
+            if foodStates[i][j]:
                 foods.append((i, j))
+    food = []
+    if foods:
+        for food in foods:
+            md = manhattanDistance(food, pos)
+            food.append(md)
+
+    food = sorted(food)
 
     # Fear
     fear = 0
@@ -460,12 +469,11 @@ def betterEvaluationFunction(currentGameState):
                 md = manhattanDistance(ghost.getPosition(), pos)
                 ghosts.append(md)
 
-                # If the spot gets us killed, it's an auto negative inf
-                if md == 0:
-                    return -99999
 
     # Sort ghosts based on distance
     ghosts = sorted(ghosts)
+    ghosts = [ghost for ghost in ghosts if ghost < 5]
+
 
     for i in range(len(ghosts)):
         # Hunger is a negative exponential function that is multiplied by fear_factor
@@ -475,12 +483,12 @@ def betterEvaluationFunction(currentGameState):
     hunger_factor = 19
     # Hunger factor
     hunger = 0
+    food
     if foods:
         closest_food = 99999
         for food in foods:
             md = manhattanDistance(food, pos)
-            if md == 0:
-                return hunger_factor
+
             # Loving the closest food most
             if md < closest_food:
                 closest_food = md
