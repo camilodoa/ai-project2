@@ -443,20 +443,6 @@ def betterEvaluationFunction(currentGameState):
     if currentGameState.isLose():
         return -99999
 
-    # Record food coordinates
-    foods = []
-    for i in range(len(foodStates)):
-        for j in range(len(foodStates[i])):
-            if foodStates[i][j]:
-                foods.append((i, j))
-    food = []
-    if foods:
-        for food in foods:
-            md = manhattanDistance(food, pos)
-            food.append(md)
-
-    food = sorted(food)
-
     # Fear
     fear = 0
     fear_factor = 15
@@ -480,10 +466,23 @@ def betterEvaluationFunction(currentGameState):
         fear += (fear_factor/ghosts[i]) * (gamma**i)
 
 
+    # Record food coordinates
+    foods = []
+    for i in range(len(foodStates)):
+        for j in range(len(foodStates[i])):
+            if foodStates[i][j]:
+                foods.append((i, j))
+    foodDistances = []
+    if foods:
+        for food in foods:
+            md = manhattanDistance(food, pos)
+            foodDistances.append(md)
+
+    food = sorted(food)
+
     hunger_factor = 19
     # Hunger factor
     hunger = 0
-    food
     if foods:
         closest_food = 99999
         for food in foods:
