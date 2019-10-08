@@ -429,6 +429,7 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
+    import random
     # Our plan:
     # Winning > Not getting killed > eating food > moving closer to food > fearing ghosts (see: God)
     ghostStates = currentGameState.getGhostStates()
@@ -478,35 +479,25 @@ def betterEvaluationFunction(currentGameState):
             md = manhattanDistance(food, pos)
             foodDistances.append(md)
 
-    food = sorted(food)
+    foodDistances = sorted(foodDistances)
 
     hunger_factor = 19
     # Hunger factor
     hunger = 0
-    if foods:
-        closest_food = 99999
-        for food in foods:
-            md = manhattanDistance(food, pos)
+    foodGamma = 0.3
+    for i in range(len(foodDistances)):
+        # Hunger is a negative exponential function that is multiplied by fear_factor
+        hunger += (hunger_factor/foodDistances[i]) * (foodGamma**i)
 
-            # Loving the closest food most
-            if md < closest_food:
-                closest_food = md
+    for ghost in ghostStates:
+        if ghost.scaredTimer > 0:
+            md = manhattanDistance(ghost.getPosition(), pos)
+            hunger += (hunger_factor/md)
 
-        for ghost in ghostStates:
-            if ghost.scaredTimer > 0:
-                md = manhattanDistance(ghost.getPosition(), pos)
-                if md == 0:
-                    return hunger_factor
-                # Loving the closest food most
-                if md < closest_food:
-                    closest_food = md
 
-        # Hunger is a negative exponential function that is multiplied by hunger_factor
-        hunger = hunger_factor/closest_food
-
-    score =  hunger - fear
+    pelletFactor = 3
+    score =  (hunger * ( n ** -1)*pelletFactor) - fear + random.uniform(0, 0.5)
     print(score, hunger, fear)
-
     return score
 
     util.raiseNotDefined()
