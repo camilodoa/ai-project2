@@ -105,7 +105,7 @@ class ReflexAgent(Agent):
                         return -99999
 
         # Sort ghosts based on distance
-        ghost = sorted(ghosts)
+        ghosts = sorted(ghosts)
 
         for i in range(len(ghosts)):
             # Hunger is a negative exponential function that is multiplied by fear_factor
@@ -449,7 +449,7 @@ def betterEvaluationFunction(currentGameState):
 
     # Fear
     fear = 0
-    fear_factor = 12
+    fear_factor = 15
     ghosts = []
     gamma = .5
 
@@ -464,14 +464,14 @@ def betterEvaluationFunction(currentGameState):
                     return -99999
 
     # Sort ghosts based on distance
-    ghost = sorted(ghosts)
+    ghosts = sorted(ghosts)
 
     for i in range(len(ghosts)):
         # Hunger is a negative exponential function that is multiplied by fear_factor
         fear += (fear_factor/ghosts[i]) * (gamma**i)
 
 
-    hunger_factor = 18
+    hunger_factor = 19
     # Hunger factor
     hunger = 0
     if foods:
@@ -497,6 +497,7 @@ def betterEvaluationFunction(currentGameState):
         hunger = hunger_factor/closest_food
 
     score =  hunger - fear
+    print(score, hunger, fear)
 
     return score
 
