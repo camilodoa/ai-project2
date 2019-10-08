@@ -429,7 +429,77 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
+    # Our plan:
+    # Winning > Not getting killed > eating food > moving closer to food > fearing ghosts (see: God)
+    ghostStates = currentGameState.getGhostStates()
+    n = currentGameState.getNumFood()
+    pos = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood().data
+
+    # If you can win that's the best possible move
+    if n == 0:
+        return 99999
+
+    # Record food coordinates
+    foods = []
+    for i in range(len(food)):
+        for j in range(len(food[i])):
+            if food[i][j]:
+                foods.append((i, j))
+
+    # Fear
+    fear = 0
+    fear_factor = 12
+    ghosts = []
+    gamma = .5
+
+    if ghostStates: # If there are ghosts
+        for ghost in ghostStates:
+            if ghost.scaredTimer == 0:
+                md = manhattanDistance(ghost.getPosition(), pos)
+                ghosts.append(md)
+
+                # If the spot gets us killed, it's an auto negative inf
+                if md == 0:
+                    return -99999
+
+    # Sort ghosts based on distance
+    ghost = sorted(ghosts)
+
+    for i in range(len(ghosts)):
+        # Hunger is a negative exponential function that is multiplied by fear_factor
+        fear += (fear_factor/ghosts[i]) * (gamma**i)
+
+
+    hunger_factor = 18
+    # Hunger factor
+    hunger = 0
+    if foods:
+        closest_food = 99999
+        for food in foods:
+            md = manhattanDistance(food, pos)
+            if md == 0:
+                return hunger_factor
+            # Loving the closest food most
+            if md < closest_food:
+                closest_food = md
+
+        for ghost in ghostStates:
+            if ghost.scaredTimer > 0:
+                md = manhattanDistance(ghost.getPosition(), pos)
+                if md == 0:
+                    return hunger_factor
+                # Loving the closest food most
+                if md < closest_food:
+                    closest_food = md
+
+        # Hunger is a negative exponential function that is multiplied by hunger_factor
+        hunger = hunger_factor/closest_food
+
+    score =  hunger - fear
+
+    return score
+
     util.raiseNotDefined()
 
 # Abbreviation
