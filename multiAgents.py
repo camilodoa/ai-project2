@@ -368,24 +368,14 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """
         max_score = -99999
         max_action = None
-        alpha = -99999
-        beta = 99999
-
         for action in gameState.getLegalActions(0):
-          result = self.minimax(gameState.generateSuccessor(0, action), 1, 1, alpha, beta)
-
+          result = self.minimax(gameState.generateSuccessor(0, action), 1, 1)
           if result >= max_score:
             max_score = result
             max_action = action
 
-          # Pruning part
-          if max_score > beta:
-              return max_action
-
-          alpha = max(alpha, max_score)
-
         return max_action
-        
+
         util.raiseNotDefined()
 
     def minimax(self, s, d, turn):
@@ -413,7 +403,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
 
         if turn >= 1:
-            min_action = 99999
+            sum_action = 0.0
             actions = s.getLegalActions(turn)
 
             for action in actions:
@@ -422,10 +412,9 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 else:
                     result = self.minimax(s.generateSuccessor(turn, action), d, turn + 1)
 
-                if result < min_action:
-                    min_action = result
+                sum_action += result
 
-            return min_action
+            return sum_action / len(actions)
 
 
     def cutoffTest(self, d):
