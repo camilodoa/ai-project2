@@ -429,7 +429,6 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    import random
     # Our plan:
     # Winning > Not getting killed > eating food > moving closer to food > fearing ghosts (see: God)
     ghostStates = currentGameState.getGhostStates()
