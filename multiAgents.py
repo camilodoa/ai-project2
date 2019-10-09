@@ -440,7 +440,7 @@ def betterEvaluationFunction(currentGameState):
 
     # If you can win that's the best possible move
     if currentGameState.isWin():
-        return 99999
+        return 99999 + random.uniform(0, .5)
 
     if currentGameState.isLose():
         return -99999
@@ -470,24 +470,6 @@ def betterEvaluationFunction(currentGameState):
         # by a gamma^i where 0<gamma<1 and by a fear_factor
         fear += (fear_factor/ghosts[i]) * (gamma**i)
 
-    capsuleDistances = []
-    for capsule in capsules:
-      md = manhattanDistance(capsule, pos)
-      capsuleDistances.append(md)
-    capsuleDistances = sorted(capsuleDistances)
-
-    scaredGhosts = []
-    for ghost in ghostStates:
-        if ghost.scaredTimer > 0:
-            md = manhattanDistance(ghost.getPosition(), pos)
-            scaredGhosts.append(md)
-
-    scaredGhosts = sorted(scaredGhosts)
-    scaredGhosts = [ghost for ghost in scaredGhosts if ghost < 5]
-    #for i in range(len(scaredGhosts)):
-        # Hunger is a negative exponential function that is multiplied by fear_factor
-        # hunger -= (hunger_factor/scaredGhosts[i]) * (foodGamma**i)
-
     # Record food coordinates
     foods = []
     for i in range(len(foodStates)):
@@ -513,8 +495,29 @@ def betterEvaluationFunction(currentGameState):
         # by a foodGamma^i where 0<foodGamma<1 and by a hunger_factor
         hunger += (hunger_factor/foodDistances[i]) * (foodGamma**i)
 
-    score =  hunger - fear + random.uniform(0, .5) - (n+7)**2 + currentGameState.getScore() - (((len(capsules)+9)**2) * fear)
-    print(score)
+    # Beserk mode
+    scaredGhosts = []
+    for ghost in ghostStates:
+        if ghost.scaredTimer > 0:
+            md = manhattanDistance(ghost.getPosition(), pos)
+            scaredGhosts.append(md)
+
+    # Senzu bean
+    capsuleDistances = []
+    for capsule in capsules:
+      md = manhattanDistance(capsule, pos)
+      capsuleDistances.append(md)
+
+    capsuleDistances = sorted(capsuleDistances)
+    for i in range(len(capsuleDistances)):
+        hunger += (hunger_factor*4/capsuleDistances[i]) * (foodGamma**i)
+
+    scaredGhosts = sorted(scaredGhosts)
+    scaredGhosts = [ghost for ghost in scaredGhosts if ghost < 5]
+    for i in range(len(scaredGhosts)):
+        hunger += (hunger_factor*2/scaredGhosts[i]) * (foodGamma**i)
+
+    score =  hunger - fear + random.uniform(0, .5) - (n+7)**2 + currentGameState.getScore() - (len(capsules)+30)**2
     return score
 
     util.raiseNotDefined()
