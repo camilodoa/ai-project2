@@ -436,6 +436,7 @@ def betterEvaluationFunction(currentGameState):
     n = currentGameState.getNumFood()
     pos = currentGameState.getPacmanPosition()
     foodStates = currentGameState.getFood().data
+    capsules = currentGameState.getCapsules()
 
     # If you can win that's the best possible move
     if currentGameState.isWin():
@@ -469,6 +470,23 @@ def betterEvaluationFunction(currentGameState):
         # by a gamma^i where 0<gamma<1 and by a fear_factor
         fear += (fear_factor/ghosts[i]) * (gamma**i)
 
+    capsuleDistances = []
+    for capsule in capsules:
+      md = manhattanDistance(capsule, pos)
+      capsuleDistances.append(md)
+    capsuleDistances = sorted(capsuleDistances)
+
+    scaredGhosts = []
+    for ghost in ghostStates:
+        if ghost.scaredTimer > 0:
+            md = manhattanDistance(ghost.getPosition(), pos)
+            scaredGhosts.append(md)
+
+    scaredGhosts = sorted(scaredGhosts)
+    scaredGhosts = [ghost for ghost in scaredGhosts if ghost < 5]
+    #for i in range(len(scaredGhosts)):
+        # Hunger is a negative exponential function that is multiplied by fear_factor
+        # hunger -= (hunger_factor/scaredGhosts[i]) * (foodGamma**i)
 
     # Record food coordinates
     foods = []
@@ -495,19 +513,7 @@ def betterEvaluationFunction(currentGameState):
         # by a foodGamma^i where 0<foodGamma<1 and by a hunger_factor
         hunger += (hunger_factor/foodDistances[i]) * (foodGamma**i)
 
-    scaredGhosts = []
-    for ghost in ghostStates:
-        if ghost.scaredTimer > 0:
-            md = manhattanDistance(ghost.getPosition(), pos)
-            scaredGhosts.append(md)
-
-    # scaredGhosts = sorted(scaredGhosts)
-    # scaredGhosts = [ghost for ghost in scaredGhosts if ghost < 5]
-    # for i in range(len(scaredGhosts)):
-    #     # Hunger is a negative exponential function that is multiplied by fear_factor
-    #     # hunger -= (hunger_factor/scaredGhosts[i]) * (foodGamma**i)
-
-    score =  hunger - fear + random.uniform(0, .5) - (n+7)**2 + currentGameState.getScore()
+    score =  hunger - fear + random.uniform(0, .5) - (n+7)**2 + currentGameState.getScore() - (((len(capsules)+9)**2) * fear)
     print(score)
     return score
 
