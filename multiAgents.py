@@ -439,7 +439,7 @@ def betterEvaluationFunction(currentGameState):
 
     # If you can win that's the best possible move
     if currentGameState.isWin():
-        return 999999
+        return 99999
 
     if currentGameState.isLose():
         return -99999
@@ -450,7 +450,8 @@ def betterEvaluationFunction(currentGameState):
     ghosts = []
     gamma = .5
 
-    if ghostStates: # If there are ghosts
+    # Calculate distances to nearest ghost
+    if ghostStates:
         for ghost in ghostStates:
             if ghost.scaredTimer == 0:
                 md = manhattanDistance(ghost.getPosition(), pos)
@@ -459,11 +460,13 @@ def betterEvaluationFunction(currentGameState):
 
     # Sort ghosts based on distance
     ghosts = sorted(ghosts)
+    # Only worry about ghosts if they're nearby
     ghosts = [ghost for ghost in ghosts if ghost < 5]
 
 
     for i in range(len(ghosts)):
-        # Hunger is a negative exponential function that is multiplied by fear_factor
+        # Fear is sum of the recipricals of the distances to the nearest ghosts multiplied
+        # by a gamma^i where 0<gamma<1 and by a fear_factor
         fear += (fear_factor/ghosts[i]) * (gamma**i)
 
 
@@ -473,20 +476,23 @@ def betterEvaluationFunction(currentGameState):
         for j in range(len(foodStates[i])):
             if foodStates[i][j]:
                 foods.append((i, j))
+
+    #Calculate distances to nearest foods
     foodDistances = []
     if foods:
         for food in foods:
             md = manhattanDistance(food, pos)
             foodDistances.append(md)
-
     foodDistances = sorted(foodDistances)
+
 
     hunger_factor = 18
     # Hunger factor
     hunger = 0
     foodGamma = -0.4
     for i in range(len(foodDistances)):
-        # Hunger is a negative exponential function that is multiplied by hunger_factor
+        # Hunger is the sum of the reciprical of the distances to the nearest foods multiplied
+        # by a foodGamma^i where 0<foodGamma<1 and by a hunger_factor
         hunger += (hunger_factor/foodDistances[i]) * (foodGamma**i)
 
     scaredGhosts = []
@@ -501,8 +507,8 @@ def betterEvaluationFunction(currentGameState):
     #     # Hunger is a negative exponential function that is multiplied by fear_factor
     #     # hunger -= (hunger_factor/scaredGhosts[i]) * (foodGamma**i)
 
-    score =  hunger - fear + random.uniform(0, 1) - n**2 + currentGameState.getScore()
-    # print(score)
+    score =  hunger - fear + random.uniform(0, .5) - (n+7)**2 + currentGameState.getScore()
+    print(score)
     return score
 
     util.raiseNotDefined()
